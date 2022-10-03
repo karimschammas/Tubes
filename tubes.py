@@ -15,18 +15,7 @@ def is_empty(ls):
     
 class Tube():
     def __init__(self, tube, nmax_tube = 4, removed_elements = [], added_elements = []):
-        if not(isinstance(tube,list)):
-            self.tube = tube.tube
-            self.stripped = tube.stripped
-            self.nmax_tube = tube.nmax_tube
-            self.is_empty = tube.is_empty
-            self.is_full = tube.is_full
-            self.last_element = tube.last_element
-            self.is_homo = tube.is_homo
-            self.is_done = tube.is_done
-            self.removed_elements = tube.removed_elements
-            self.added_elements = tube.added_elements
-        else:
+        if isinstance(tube,list):
             self.tube = tube + [None] * (nmax_tube - len(tube))
             self.stripped = [el for el in tube if el is not None]
             self.nmax_tube = nmax_tube
@@ -37,6 +26,18 @@ class Tube():
             self.is_done = self.is_full and self.is_homo
             self.removed_elements = removed_elements
             self.added_elements = added_elements
+        else:
+            # Si l'objet est déjà un tube, on recupère ses attribus
+            self.tube = tube.tube
+            self.stripped = tube.stripped
+            self.nmax_tube = tube.nmax_tube
+            self.is_empty = tube.is_empty
+            self.is_full = tube.is_full
+            self.last_element = tube.last_element
+            self.is_homo = tube.is_homo
+            self.is_done = tube.is_done
+            self.removed_elements = tube.removed_elements
+            self.added_elements = tube.added_elements
             
     def __repr__(self): return str(self.tube)
         
@@ -44,6 +45,7 @@ class Tube():
         return not(len(self.stripped) == self.nmax_tube)
     
     def can_add_element(self, element, verbose = False):
+        # Is it possible to add element "element" to tube?
         if not(self.can_add()):
             if verbose: print('Tube is full')
             return False
@@ -57,7 +59,7 @@ class Tube():
             return False
         else:
             return True
-        
+     
     def add_element(self, element, verbose = False):
         # Action of adding an element to an existing tube
         if self.can_add_element(element, verbose = verbose):
