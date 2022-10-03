@@ -230,3 +230,29 @@ class Tubes():
         else:
             #print('Game over', self.history)
             return False
+
+        
+# Application
+
+arr = [
+    [1,2,2,3],
+    [1,4,5,6],
+    [1,7,5,3],
+    [4,2,6,3],
+    [5,6,3,4],
+    [7,5,4,7],
+    [1,7,2,6],
+    [],
+    []
+]
+
+tubes = Tubes(arr,4)
+tubes
+
+move = '1>8'
+tubes = tubes.move(move)
+tubes
+
+tubes.possible_actions()
+
+tubes.play_till_over()
