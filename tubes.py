@@ -3,6 +3,7 @@ import itertools as it
 import numpy as np
 
 def last_element(ls):
+    # Last non-null element of tube
     if len(ls) == 0:
         return None
     if ls[-1] is None:
@@ -41,6 +42,7 @@ class Tube():
         
     def can_add(self):
         return not(len(self.stripped) == self.nmax_tube)
+    
     def can_add_element(self, element, verbose = False):
         if not(self.can_add()):
             if verbose: print('Tube is full')
@@ -57,6 +59,7 @@ class Tube():
             return True
         
     def add_element(self, element, verbose = False):
+        # Action of adding an element to an existing tube
         if self.can_add_element(element, verbose = verbose):
             tube_res = Tube(tube = self.stripped + [element],
                         nmax_tube = self.nmax_tube,
@@ -68,9 +71,11 @@ class Tube():
             if verbose: print('cannot add element')
     
     def can_remove(self):
+        # Tells us if we can remove an element from tube
         return not(self.is_empty or self.is_done or (last_element(self.stripped) == last_element(self.added_elements)))
         
     def remove_last_element(self):
+        # Action of removing last element if possible
         if self.can_remove():
             tube_res = Tube(tube = self.stripped[:-1],
                         nmax_tube = self.nmax_tube,
@@ -120,10 +125,11 @@ class Tubes():
     def characterize(self):
         print(f'there are {self.n_tubes} tubes of {self.n_colors} colors: {self.colors}\n')
         
-    # Possible actions
+    # All possible actions
     def all_actions(self):
         return [str(x[0]) + '>' + str(x[1]) for x in it.permutations([i for i in range(1, self.n_tubes + 1)],2)]
     
+    # Assess action: can it be done (True), or not (False)?
     def assess_action(self, action, verbose = False):
         obj1 = self.objects[int(action[0]) -1]
         obj2 = self.objects[int(action[2]) -1]              
@@ -147,6 +153,7 @@ class Tubes():
             return False
         return res
         
+    # List of all possible actions
     def possible_actions(self):
         try:
             return [action for action in self.all_actions() if self.assess_action(action, False)]
@@ -155,6 +162,7 @@ class Tubes():
             print(self.all_actions())
             return [action for action in self.all_actions() if self.assess_action(action, True)]
     
+    # Is called at each step to know if we can continue the game
     def can_continue(self):
         if len(self.possible_actions())>0:
             return True
@@ -169,6 +177,8 @@ class Tubes():
         # All tubes are either done or empty
         return len([tube for tube in self.objects if (tube.is_done or tube.is_empty)]) == self.n_tubes
     
+    # Method that realizes action: displacement from one tube to another.
+    # action "3>2" = displace last element of tube 3 to tube 2
     def move(self, action, verbose = True):
         index_from = int(action[0]) - 1
         index_to = int(action[2]) - 1
@@ -186,12 +196,14 @@ class Tubes():
                 print('cant make action', action)
                 print(self.objects[index_from], self.objects[index_to])
             return self
-        
+    
+    # Make a series of moves stored in list "actions" as strings
     def make_moves(self, actions, verbose = False):
         for action in actions:
             self = self.move(action, verbose = verbose)
         return self
     
+    # Does all the possible scenarios and return the history of the winning scenario
     def play_till_over(self, verbose = False):
         if self.can_continue():
             try:
