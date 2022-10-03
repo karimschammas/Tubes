@@ -116,6 +116,7 @@ class Tubes():
         
         
     def __repr__(self):
+        # Representation of the object when we print it
         config = [list(x) for x in np.array(self.tubes).transpose()[::-1]]
         s = [[str(e) for e in row] for row in config]
         lens = [max(map(len, col)) for col in zip(*s)]
@@ -127,14 +128,14 @@ class Tubes():
     def characterize(self):
         print(f'there are {self.n_tubes} tubes of {self.n_colors} colors: {self.colors}\n')
         
-    # All possible actions
     def all_actions(self):
+        # All possible actions. Represented as a list of strings "x>y" = tube x to tube y
         return [str(x[0]) + '>' + str(x[1]) for x in it.permutations([i for i in range(1, self.n_tubes + 1)],2)]
     
-    # Assess action: can it be done (True), or not (False)?
     def assess_action(self, action, verbose = False):
-        obj1 = self.objects[int(action[0]) -1]
-        obj2 = self.objects[int(action[2]) -1]              
+        # Assess action: can it be done (True), or not (False)?
+        obj1 = self.objects[int(action[0]) -1] # Tube object n1
+        obj2 = self.objects[int(action[2]) -1] # Tube object n2
         try:
             tube1 = Tube(tube = obj1,
                         nmax_tube = self.nmax_tube
@@ -142,9 +143,8 @@ class Tubes():
             tube2 = Tube(tube = obj2,
                         nmax_tube = self.nmax_tube
                         )
-            res = (tube1.can_remove() and tube2.can_add_element(element = tube1.last_element, verbose = verbose))
+            res = (tube1.can_remove() and tube2.can_add_element(element = tube1.last_element, verbose = verbose)) and not(tube1.is_homo and tube2.is_empty)
             # if tube1 is homogenous and tube2 is empty, useless
-            res = res and not(tube1.is_homo and tube2.is_empty)
         except:
             print('action invalid', action)
             print('tubes\n', self)
@@ -155,8 +155,8 @@ class Tubes():
             return False
         return res
         
-    # List of all possible actions
     def possible_actions(self):
+        # List of all possible actions that are doable
         try:
             return [action for action in self.all_actions() if self.assess_action(action, False)]
         except:
@@ -179,9 +179,9 @@ class Tubes():
         # All tubes are either done or empty
         return len([tube for tube in self.objects if (tube.is_done or tube.is_empty)]) == self.n_tubes
     
-    # Method that realizes action: displacement from one tube to another.
-    # action "3>2" = displace last element of tube 3 to tube 2
     def move(self, action, verbose = True):
+        # Method that realizes action: displacement from one tube to another.
+        # action "3>2" = displace last element of tube 3 to tube 2
         index_from = int(action[0]) - 1
         index_to = int(action[2]) - 1
         if self.assess_action(action, verbose = verbose):
@@ -199,17 +199,17 @@ class Tubes():
                 print(self.objects[index_from], self.objects[index_to])
             return self
     
-    # Make a series of moves stored in list "actions" as strings
     def make_moves(self, actions, verbose = False):
+        # Make a series of moves stored in list "actions" as strings
         for action in actions:
             self = self.move(action, verbose = verbose)
         return self
     
-    # Does all the possible scenarios and return the history of the winning scenario
     def play_till_over(self, verbose = False):
+        # Does all the possible scenarios and return the history of the winning scenario
         if self.can_continue():
             try:
-                poss_actions = self.possible_actions()[:2]
+                poss_actions = self.possible_actions()
             except:
                 print('poss actions invalid')
                 return self
@@ -221,6 +221,8 @@ class Tubes():
                     print('current state:', self)
                     print('history:',self.history)
                     move = self.move(action = poss, verbose = True)
+                    
+                # Recursion
                 scenar = move.play_till_over()
                 if scenar == True:
                     return scenar 
